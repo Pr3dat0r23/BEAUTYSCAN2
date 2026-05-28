@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/scannerFragment">
 
+    <fragment
+        android:id="@+id/scannerFragment"
+        android:name="com.example.beautyscan2.ScannerFragment"
+        android:label="fragment_scanner"
+        tools:layout="@layout/fragment_scanner" />
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.beautyscan2.HistoryFragment"
+        android:label="fragment_history"
+        tools:layout="@layout/fragment_history" />
+    <fragment
+        android:id="@+id/manualSearchFragment"
+        android:name="com.example.beautyscan2.ManualSearchFragment"
+        android:label="fragment_manual_search"
+        tools:layout="@layout/fragment_manual_search" />
 </navigation>
