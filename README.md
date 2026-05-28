@@ -1,6 +1,6 @@
-# BEAUTYSCAN2
+# BEAUTYSCAN
 
-Aplikacja mobilna na Androida (Kotlin) do skanowania kodów kreskowych kosmetyków i analizy ich składu.
+Aplikacja mobilna na Androida do skanowania kodów kreskowych kosmetyków i analizy ich składu.
 
 ## Zrealizowane zadania
 
