@@ -1,49 +1,57 @@
 package com.example.beautyscan2
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-class ScannerViewModel : ViewModel() {
+// Dziedziczymy po AndroidViewModel, by móc pobrać kontekst aplikacji dla bazy
+class ScannerViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Tworzymy instancję naszego repozytorium
     private val repository = BeautyRepository()
+    // Uruchamiamy połączenie z bazą Room
+    private val historyDao = AppDatabase.getDatabase(application).historyDao()
 
-    // LiveData przechowująca wynik pobranego produktu
     private val _productResult = MutableLiveData<ProductData?>()
     val productResult: LiveData<ProductData?> get() = _productResult
 
-    // LiveData przechowująca komunikaty o błędach
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
-    // LiveData do pokazywania paska ładowania (kręcącego się kółka)
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
-    // Główna funkcja wywoływana po zeskanowaniu kodu
     fun searchBarcode(barcode: String) {
-        // Uruchamiamy proces w tle (Coroutines)
         viewModelScope.launch {
-            _isLoading.value = true // Włączamy ładowanie
+            _isLoading.value = true
             try {
-                // Prosimy repozytorium o dane
                 val response = repository.fetchProductInfo(barcode)
 
                 if (response.status == 1) {
-                    // Sukces - znaleziono produkt
-                    _productResult.value = response.product
+                    val product = response.product
+                    _productResult.value = product
+
+                    // ZAPIS DO BAZY DANYCH ROOM (Nowy kod!)
+                    if (product != null) {
+                        val historyEntity = HistoryEntity(
+                            barcode = barcode,
+                            productName = product.productName ?: "Nieznany produkt",
+                            brand = product.brands ?: "Nieznana marka",
+                            rating = 0, // na razie brak oceny
+                            scanDate = System.currentTimeMillis() // obecna data
+                        )
+                        // Funkcja z pliku HistoryDao
+                        historyDao.insertScan(historyEntity)
+                    }
                 } else {
-                    // Produktu nie ma w bazie
                     _errorMessage.value = "Nie znaleziono produktu o kodzie: $barcode"
                 }
             } catch (e: Exception) {
-                // Błąd sieci (np. brak internetu)
                 _errorMessage.value = "Błąd połączenia: ${e.message}"
             } finally {
-                _isLoading.value = false // Wyłączamy ładowanie
+                _isLoading.value = false
             }
         }
     }

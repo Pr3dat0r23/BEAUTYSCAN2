@@ -10,6 +10,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.navigation.fragment.findNavController
 
 class ManualSearchFragment : Fragment() {
 
@@ -34,6 +37,16 @@ class ManualSearchFragment : Fragment() {
         val btnSearch = view.findViewById<Button>(R.id.btnSearch)
         val tvResult = view.findViewById<TextView>(R.id.tvResult)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+        val rvIngredients = view.findViewById<RecyclerView>(R.id.rvIngredients)
+        val btnGoToHistory = view.findViewById<Button>(R.id.btnGoToHistory)
+        btnGoToHistory.setOnClickListener {
+            // Magia Navigation Component - natychmiastowe przeniesienie na inny ekran!
+            findNavController().navigate(R.id.historyFragment)
+        }
+
+
+        // Konfiguracja RecyclerView (lista potrzebuje LayoutManagera)
+        rvIngredients.layoutManager = LinearLayoutManager(context)
 
         // 3. Co ma się stać po kliknięciu przycisku?
         btnSearch.setOnClickListener {
@@ -44,25 +57,38 @@ class ManualSearchFragment : Fragment() {
             }
         }
 
-        // 4. MAGIA MVVM: Obserwowanie danych (Ekran sam reaguje na zmiany z ViewModelu)
+        // 4. MVVM: Obserwowanie danych (Ekran sam reaguje na zmiany z ViewModelu)
 
         // Obserwujemy sukces:
         viewModel.productResult.observe(viewLifecycleOwner) { product ->
             if (product != null) {
+                // Wyświetlamy ogólne info
                 tvResult.text = "ZNALEZIONO!\n\nProdukt: ${product.productName}\nMarka: ${product.brands}"
+
+                // Bierzemy długi tekst ze składem, dzielimy go na przecinkach (split) i usuwamy puste (filter)
+                val ingredientsString = product.ingredientsText ?: ""
+                val ingredientsList = ingredientsString.split(",").filter { it.isNotBlank() }
+
+                // Tworzymy tłumacza (Adapter) i przekazujemy mu naszą listę składników
+                val adapter = IngredientsAdapter(ingredientsList)
+                // Przypinamy tłumacza do listy na ekranie
+                rvIngredients.adapter = adapter
             }
         }
 
         // Obserwujemy błędy:
         viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
             tvResult.text = error
+            // Czyścimy listę w razie błędu, wrzucając jej pusty Adapter
+            rvIngredients.adapter = IngredientsAdapter(emptyList())
         }
 
-        // Obserwujemy stan ładowania (pokazuje lub ukrywa kółko):
+        // Obserwujemy stan ładowania:
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             if (isLoading) {
                 progressBar.visibility = View.VISIBLE
                 tvResult.text = "" // Czyścimy stary tekst
+                rvIngredients.adapter = IngredientsAdapter(emptyList()) // Czyścimy starą listę
             } else {
                 progressBar.visibility = View.GONE
             }
