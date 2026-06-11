@@ -23,35 +23,54 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> get() = _isLoading
 
+    private val _communityRating = MutableLiveData<Double?>()
+    val communityRating: LiveData<Double?> get() = _communityRating
+
     fun searchBarcode(barcode: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
+                // 1. Pobieranie danych z Open Beauty Facts
                 val response = repository.fetchProductInfo(barcode)
 
                 if (response.status == 1) {
                     val product = response.product
                     _productResult.value = product
 
-                    // ZAPIS DO BAZY DANYCH ROOM (Nowy kod!)
+                    // 2. Pobieranie oceny społeczności z Firebase
+                    val rating = repository.getCommunityRating(barcode)
+                    _communityRating.value = rating
+
                     if (product != null) {
                         val historyEntity = HistoryEntity(
                             barcode = barcode,
                             productName = product.productName ?: "Nieznany produkt",
                             brand = product.brands ?: "Nieznana marka",
-                            rating = 0, // na razie brak oceny
-                            scanDate = System.currentTimeMillis() // obecna data
+                            rating = 0,
+                            scanDate = System.currentTimeMillis()
                         )
-                        // Funkcja z pliku HistoryDao
                         historyDao.insertScan(historyEntity)
                     }
                 } else {
                     _errorMessage.value = "Nie znaleziono produktu o kodzie: $barcode"
+                    _communityRating.value = null // resetujemy ocenę
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Błąd połączenia: ${e.message}"
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun rateProduct(barcode: String, rating: Int) {
+        viewModelScope.launch {
+            try {
+                repository.submitRating(barcode, rating)
+                // Odświeżamy ocenę, żeby od razu pokazać zaktualizowaną średnią
+                _communityRating.value = repository.getCommunityRating(barcode)
+            } catch (e: Exception) {
+                _errorMessage.value = "Błąd podczas wysyłania oceny: ${e.message}"
             }
         }
     }

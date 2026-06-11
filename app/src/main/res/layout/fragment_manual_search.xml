@@ -45,6 +45,42 @@
         android:textSize="16sp"
         android:textAlignment="center"/>
 
+    <TextView
+        android:id="@+id/tvCommunityRating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Ocena społeczności: ładuję..."
+        android:textAlignment="center"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
+        <EditText
+            android:id="@+id/etUserRating"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Twoja ocena (1-10)"
+            android:inputType="number"
+            android:visibility="gone"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnSubmitRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wyślij ocenę"
+            android:visibility="gone"/>
+    </LinearLayout>
     <Button
         android:id="@+id/btnGoToHistory"
         android:layout_width="wrap_content"
