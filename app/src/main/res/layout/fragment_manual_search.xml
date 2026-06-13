@@ -88,6 +88,28 @@
         android:layout_gravity="center"
         android:text="Zobacz Historię"
         android:layout_marginBottom="16dp"/>
+    <TextView
+        android:id="@+id/tvAllergenWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#FFCDD2"
+        android:padding="16dp"
+        android:text="⚠️ UWAGA! Wykryto niepożądane składniki!"
+        android:textAlignment="center"
+        android:textColor="#B71C1C"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnOpenScanner"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Uruchom Skaner (Aparat)"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#8A2BE2" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvIngredients"
