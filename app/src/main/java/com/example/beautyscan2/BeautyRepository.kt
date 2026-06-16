@@ -9,7 +9,8 @@ class BeautyRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Logowanie anonimowe w tle - generuje unikalne ID dla instalacji aplikacji
+    // Logowanie  w tle,
+    //  Unikalne ID dla kazdego z fonów
     suspend fun signInAnonymouslyIfNeeded() {
         if (auth.currentUser == null) {
             auth.signInAnonymously().await()
@@ -27,7 +28,7 @@ class BeautyRepository {
         } catch (e: Exception) { null }
     }
 
-    // Pobieranie indywidualnej oceny TEGO konkretnego użytkownika
+    // Pobieranie indywidualnej oceny konkretnego użytkownika
     suspend fun getUserSpecificRating(barcode: String): Float? {
         val userId = auth.currentUser?.uid ?: return null
         return try {
@@ -52,7 +53,7 @@ class BeautyRepository {
             var numberOfRatings = productSnapshot.getLong("numberOfRatings") ?: 0L
 
             if (userSnapshot.exists()) {
-                // Użytkownik JUŻ GŁOSOWAŁ - aktualizujemy ocenę
+                // Użytkownik już ocenił - aktualizacja oceny
                 val oldRating = userSnapshot.getDouble("rating") ?: 0.0
                 totalScore = totalScore - oldRating + rating
             } else {

@@ -20,8 +20,8 @@ data class ProductData(
     val ingredientsTextPl: String?, // Skład w języku polskim (jeśli jest)
 
     @SerializedName("ingredients_text")
-    val ingredientsText: String?, // Skład bazowy (często INCI)
+    val ingredientsText: String?, // Skład bazowy
 
     @SerializedName("ingredients_analysis_tags")
-    val analysisTags: List<String>? // Tagi (wegański, mikroplastik itp)
+    val analysisTags: List<String>? // Tagi (wegański, mikroplastik)
 )

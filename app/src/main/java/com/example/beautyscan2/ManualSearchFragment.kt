@@ -60,12 +60,11 @@ class ManualSearchFragment : Fragment() {
         btnSearch.setOnClickListener {
             val barcode = etBarcode.text.toString()
             if (barcode.isNotEmpty()) {
-                // Nie musimy już lokalnie zapisywać kodu, ViewModel to ogarnia!
                 viewModel.searchBarcode(barcode)
             }
         }
 
-        // Akcja wysyłania oceny z gwiazdek do Firebase
+        //  Wysyłanie oceny do Firebase
         btnSubmitRating.setOnClickListener {
             val rating = ratingBar.rating // Pobiera float od 0.0 do 5.0
 

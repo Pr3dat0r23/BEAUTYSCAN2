@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
 @Database(entities = [HistoryEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    // połączenie z Dao(zapytaniami)
+    // połączenie z Dao
     abstract fun historyDao(): HistoryDao
 
 
@@ -22,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "beautyscan_database" // Nazwa pliku bazy na urządzeniu
+                    "beautyscan_database"
                 ).build()
                 INSTANCE = instance
                 instance

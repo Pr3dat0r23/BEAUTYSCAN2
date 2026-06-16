@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 class IngredientsAdapter(private val ingredients: List<String>) :
     RecyclerView.Adapter<IngredientsAdapter.ViewHolder>() {
 
-    // Trzymamy listy w companion object, żeby inne pliki też miały do nich łatwy dostęp
+    // Listy w companion object, żeby inne pliki też miały do nich łatwy dostęp
     companion object {
         // CZARNA LISTA (czerwony) - szkodliwe, mikroplastiki, silne konserwanty, pochodne ropy naftowej
         val badIngredients = listOf(
@@ -52,15 +52,15 @@ class IngredientsAdapter(private val ingredients: List<String>) :
         // Przypisywanie kolorów na podstawie list
         when {
             isBad -> {
-                // Czerwony (Wysokie ryzyko)
+                // Czerwony
                 holder.tvIngredientName.setTextColor(Color.parseColor("#D32F2F"))
             }
             isWarning -> {
-                // Pomarańczowy/Ciemnożółty (Średnie ryzyko)
+                // Pomarańczowy
                 holder.tvIngredientName.setTextColor(Color.parseColor("#F57F17"))
             }
             else -> {
-                // Zielony (Dobre / Neutralne)
+                // Zielony
                 holder.tvIngredientName.setTextColor(Color.parseColor("#388E3C"))
             }
         }
