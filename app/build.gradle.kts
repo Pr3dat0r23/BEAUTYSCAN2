@@ -64,4 +64,6 @@ dependencies {
 
     // ML Kit do czytania kodów kreskowych
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
 }

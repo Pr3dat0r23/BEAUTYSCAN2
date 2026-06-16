@@ -7,12 +7,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 
-// Dziedziczymy po AndroidViewModel, by móc pobrać kontekst aplikacji dla bazy
 class ScannerViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = BeautyRepository()
-    // Uruchamiamy połączenie z bazą Room
     private val historyDao = AppDatabase.getDatabase(application).historyDao()
+
+    // TRZYMAMY KOD W PAMIĘCI - to naprawia błąd skanera!
+    var currentBarcode: String? = null
 
     private val _productResult = MutableLiveData<ProductData?>()
     val productResult: LiveData<ProductData?> get() = _productResult
@@ -26,20 +27,28 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     private val _communityRating = MutableLiveData<Double?>()
     val communityRating: LiveData<Double?> get() = _communityRating
 
+    // Własna ocena użytkownika
+    private val _userRating = MutableLiveData<Float?>()
+    val userRating: LiveData<Float?> get() = _userRating
+
     fun searchBarcode(barcode: String) {
+        currentBarcode = barcode // Zapisujemy z czym pracujemy!
+
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // 1. Pobieranie danych z Open Beauty Facts
+                // Na starcie logujemy anonimowo, jeśli nie ma konta
+                repository.signInAnonymouslyIfNeeded()
+
                 val response = repository.fetchProductInfo(barcode)
 
                 if (response.status == 1) {
                     val product = response.product
                     _productResult.value = product
 
-                    // 2. Pobieranie oceny społeczności z Firebase
-                    val rating = repository.getCommunityRating(barcode)
-                    _communityRating.value = rating
+                    // Pobieramy średnią ORAZ ocenę naszego usera z bazy
+                    _communityRating.value = repository.getCommunityRating(barcode)
+                    _userRating.value = repository.getUserSpecificRating(barcode)
 
                     if (product != null) {
                         val historyEntity = HistoryEntity(
@@ -53,7 +62,8 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
                     }
                 } else {
                     _errorMessage.value = "Nie znaleziono produktu o kodzie: $barcode"
-                    _communityRating.value = null // resetujemy ocenę
+                    _communityRating.value = null
+                    _userRating.value = null
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Błąd połączenia: ${e.message}"
@@ -63,12 +73,15 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun rateProduct(barcode: String, rating: Int) {
+    fun rateProduct(rating: Float) {
+        val barcode = currentBarcode ?: return // Zabezpieczenie
+
         viewModelScope.launch {
             try {
                 repository.submitRating(barcode, rating)
-                // Odświeżamy ocenę, żeby od razu pokazać zaktualizowaną średnią
+                // Odświeżamy dane po wystawieniu oceny
                 _communityRating.value = repository.getCommunityRating(barcode)
+                _userRating.value = repository.getUserSpecificRating(barcode)
             } catch (e: Exception) {
                 _errorMessage.value = "Błąd podczas wysyłania oceny: ${e.message}"
             }
