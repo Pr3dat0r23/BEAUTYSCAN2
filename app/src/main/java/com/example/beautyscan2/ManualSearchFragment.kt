@@ -85,7 +85,9 @@ class ManualSearchFragment : Fragment() {
 
                 val hasAllergens = ingredientsList.any { ingredient ->
                     val lower = ingredient.lowercase()
-                    IngredientsAdapter.badIngredients.any { badItem -> lower.contains(badItem) }
+
+                    // ZMIANA TUTAJ: Dodajemy .keys, aby szukać tylko po nazwach składników (kluczach mapy)
+                    IngredientsAdapter.badIngredients.keys.any { badKey -> lower.contains(badKey) }
                 }
 
                 if (hasAllergens) {
