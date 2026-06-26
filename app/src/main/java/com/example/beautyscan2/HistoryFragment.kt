@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
@@ -25,13 +27,18 @@ class HistoryFragment : Fragment() {
         val rvHistoryList = view.findViewById<RecyclerView>(R.id.rvHistoryList)
         rvHistoryList.layoutManager = LinearLayoutManager(requireContext())
 
-        // Łączymy się z bazą danych i każemy jej nasłuchiwać zmian na żywo
+        val viewModel = ViewModelProvider(requireActivity())[ScannerViewModel::class.java]
+
         viewLifecycleOwner.lifecycleScope.launch {
             val database = AppDatabase.getDatabase(requireContext())
 
-            // Collect reaguje za każdym razem, gdy cokolwiek zmieni się w bazie
             database.historyDao().getAllHistory().collect { historyData ->
-                rvHistoryList.adapter = HistoryAdapter(historyData)
+                rvHistoryList.adapter = HistoryAdapter(historyData) { clickedBarcode ->
+
+                    viewModel.searchBarcode(clickedBarcode)
+
+                    findNavController().popBackStack()
+                }
             }
         }
     }

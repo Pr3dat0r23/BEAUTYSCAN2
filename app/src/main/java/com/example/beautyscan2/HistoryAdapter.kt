@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class HistoryAdapter(private val historyList: List<HistoryEntity>) :
-    RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
+class HistoryAdapter(
+    private val historyList: List<HistoryEntity>,
+    private val onItemClick: (String) -> Unit
+) : RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>() {
 
     class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvName: TextView = view.findViewById(R.id.tvHistoryName)
@@ -25,6 +27,10 @@ class HistoryAdapter(private val historyList: List<HistoryEntity>) :
         holder.tvName.text = item.productName
         holder.tvBrand.text = item.brand
         holder.tvBarcode.text = "EAN: ${item.barcode}"
+
+        holder.itemView.setOnClickListener {
+            onItemClick(item.barcode) // Przekazujemy kod EAN do Fragmentu
+        }
     }
 
     override fun getItemCount() = historyList.size
